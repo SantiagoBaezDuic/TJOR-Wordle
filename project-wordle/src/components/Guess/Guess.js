@@ -1,7 +1,7 @@
 import React from 'react';
 import { range } from '../../utils';
 
-function Guess({word, id}) {
+function Guess({word, id, coloringData}) {
   let wordArray = ['', '', '', '', ''];
 
   if(word.length > 0) {
@@ -11,7 +11,7 @@ function Guess({word, id}) {
   return (<p className='guess'>
     {wordArray.map((letter, index) => {
       return (
-        <span key={index} className='cell'>{letter}</span>
+        <span key={index} className={`cell ${coloringData[index]}`}>{letter}</span>
       )
     })}
   </p>);
