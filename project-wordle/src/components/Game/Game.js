@@ -1,86 +1,137 @@
-import React from 'react';
+import React from "react";
 
-import GuessInput from '../GuessInput/GuessInput';
-import GuessTracker from '../GuessTracker/GuessTracker';
-import Banner from '../Banner/Banner';
-import {NUM_OF_GUESSES_ALLOWED} from '../../constants';
-import {checkGuess} from "../../game-helpers";
-import { sample } from '../../utils';
-import { WORDS } from '../../data';
+import GuessInput from "../GuessInput/GuessInput";
+import GuessTracker from "../GuessTracker/GuessTracker";
+import Banner from "../Banner/Banner";
+import { NUM_OF_GUESSES_ALLOWED } from "../../constants";
+import { checkGuess } from "../../game-helpers";
+import { sample } from "../../utils";
+import { WORDS, EMPTY_MEMORY, LETTERS } from "../../data";
+import Keyboard from "../Keyboard/Keyboard";
 
 function Game() {
   //Word memory for saving past attempts.
-  const [wordMemory, setWordMemory] = React.useState([{word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}]);
+  const [wordMemory, setWordMemory] = React.useState(EMPTY_MEMORY);
   //State for input handling.
-  const [currentWord, setCurrentWord] = React.useState('');
+  const [currentWord, setCurrentWord] = React.useState("");
   //State to count the amount of attempts the user made.
   const [currentTrys, setCurrentTrys] = React.useState(0);
   //Boolean to define if the input is disabled or not.
   const [isGameOver, setIsGameOver] = React.useState(false);
   //State to display either a happy or sad banner.
-  const [gameStatus, setGameStatus] = React.useState('');
+  const [gameStatus, setGameStatus] = React.useState("");
   //State for the current answer selected
-  const [answer, setAnswer] = React.useState('');
+  const [answer, setAnswer] = React.useState("");
+  //State for coloring the used letters on the keyboard
+  const [usedLetters, setUsedLetters] = React.useState([...LETTERS]);
 
   function pickAnswer() {
     setAnswer(sample(WORDS));
   }
 
   // Pick a random word on game start.
-  if(answer === '') {
+  if (answer === "") {
     pickAnswer();
   }
-  
+
   // To make debugging easier, we'll log the solution in the console.
   console.info({ answer });
 
   function tryCurrentWord() {
     //Prevents the game from testing the word if the game is over.
-    if(isGameOver) {
+    if (isGameOver) {
       return;
     }
 
     //Tests the word.
-    const results = checkGuess(currentWord, answer).map((el) => el.status);
+    const results = checkGuess(currentWord, answer).map((el) => {
+      if (el.status === "incorrect") {
+        let nextUsedLetters = [...usedLetters];
+        const indexToModify = nextUsedLetters.findIndex(
+          (element) => element.letter === el.letter
+        );
+        nextUsedLetters[indexToModify].status = "incorrect";
+        setUsedLetters(nextUsedLetters);
+      } else if (el.status === "misplaced") {
+        let nextUsedLetters = [...usedLetters];
+        const indexToModify = nextUsedLetters.findIndex(
+          (element) => element.letter === el.letter
+        );
+        nextUsedLetters[indexToModify].status = "misplaced";
+        setUsedLetters(nextUsedLetters);
+      } else if (el.status === "correct") {
+        let nextUsedLetters = [...usedLetters];
+        const indexToModify = nextUsedLetters.findIndex(
+          (element) => element.letter === el.letter
+        );
+        nextUsedLetters[indexToModify].status = "correct";
+        setUsedLetters(nextUsedLetters);
+      }
+
+      return el.status;
+    });
 
     //Saves the word and the coincidences in memory.
     let nextWordMemory = [...wordMemory];
-    nextWordMemory[currentTrys] = {...nextWordMemory[currentTrys], word: currentWord, coloringData: results};
+    nextWordMemory[currentTrys] = {
+      ...nextWordMemory[currentTrys],
+      word: currentWord,
+      coloringData: results,
+    };
     setWordMemory(nextWordMemory);
 
     //Adds a new try.
     setCurrentTrys(currentTrys + 1);
 
     //Cleans the input.
-    setCurrentWord('');
+    setCurrentWord("");
 
     //If the word is correct, ends the game ands displays a happy banner.
-    if(results.every((element) => element === 'correct')) {
+    if (results.every((element) => element === "correct")) {
       setIsGameOver(true);
-      setGameStatus('happy');
+      setGameStatus("happy");
       return;
     }
 
     //If the maximum amount of trys is reached, ends the game and displays a sad banner.
-    if(currentTrys >= NUM_OF_GUESSES_ALLOWED - 1) {
+    if (currentTrys >= NUM_OF_GUESSES_ALLOWED - 1) {
       setIsGameOver(true);
-      setGameStatus('sad');
+      setGameStatus("sad");
     }
   }
 
   function restartGame() {
-    setWordMemory([{word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}]);
+    setWordMemory(EMPTY_MEMORY);
     setCurrentTrys(0);
     setIsGameOver(false);
-    setGameStatus('');
+    setGameStatus("");
     pickAnswer();
+    let nextUsedLetters = usedLetters.map((el) => {
+      return { letter: el.letter, status: "" };
+    });
+    setUsedLetters(nextUsedLetters);
   }
 
-  return (<>
-            <GuessTracker wordMemory={wordMemory} />
-            <GuessInput currentWord={currentWord} setCurrentWord={setCurrentWord} tryCurrentWord={tryCurrentWord}  isGameOver={isGameOver}/>
-            {gameStatus === '' ? null : <Banner restartGame={restartGame} status={gameStatus} answer={answer} currentTrys={currentTrys} />}
-          </>);
+  return (
+    <>
+      <GuessTracker wordMemory={wordMemory} />
+      <GuessInput
+        currentWord={currentWord}
+        setCurrentWord={setCurrentWord}
+        tryCurrentWord={tryCurrentWord}
+        isGameOver={isGameOver}
+      />
+      <Keyboard usedLetters={usedLetters} />
+      {gameStatus === "" ? null : (
+        <Banner
+          restartGame={restartGame}
+          status={gameStatus}
+          answer={answer}
+          currentTrys={currentTrys}
+        />
+      )}
+    </>
+  );
 }
 
 export default Game;

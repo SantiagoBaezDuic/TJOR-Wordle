@@ -1,2 +1,2 @@
-export * from './GuessTracker';
-export { default } from './GuessTracker';
+export * from "./GuessTracker";
+export { default } from "./GuessTracker";
