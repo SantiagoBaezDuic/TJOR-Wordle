@@ -2,7 +2,7 @@ import React from 'react';
 
 function GuessInput({ currentWord, setCurrentWord, tryCurrentWord, isGameOver }) {
 
-  return <>
+  return (<>
     <form className='guess-input-wrapper' onSubmit={event => {
       event.preventDefault();
       tryCurrentWord()
@@ -12,7 +12,7 @@ function GuessInput({ currentWord, setCurrentWord, tryCurrentWord, isGameOver })
         setCurrentWord(event.target.value.toUpperCase());
       }}/>
     </form>
-  </>;
+  </>);
 }
 
 export default GuessInput;
