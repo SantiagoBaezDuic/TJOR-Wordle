@@ -1,17 +1,12 @@
 import React from 'react';
 
-import { sample } from '../../utils';
-import { WORDS } from '../../data';
 import GuessInput from '../GuessInput/GuessInput';
 import GuessTracker from '../GuessTracker/GuessTracker';
 import Banner from '../Banner/Banner';
 import {NUM_OF_GUESSES_ALLOWED} from '../../constants';
 import {checkGuess} from "../../game-helpers";
-
-// Pick a random word on every pageload.
-const answer = sample(WORDS);
-// To make debugging easier, we'll log the solution in the console.
-console.info({ answer });
+import { sample } from '../../utils';
+import { WORDS } from '../../data';
 
 function Game() {
   //Word memory for saving past attempts.
@@ -24,6 +19,20 @@ function Game() {
   const [isGameOver, setIsGameOver] = React.useState(false);
   //State to display either a happy or sad banner.
   const [gameStatus, setGameStatus] = React.useState('');
+  //State for the current answer selected
+  const [answer, setAnswer] = React.useState('');
+
+  function pickAnswer() {
+    setAnswer(sample(WORDS));
+  }
+
+  // Pick a random word on game start.
+  if(answer === '') {
+    pickAnswer();
+  }
+  
+  // To make debugging easier, we'll log the solution in the console.
+  console.info({ answer });
 
   function tryCurrentWord() {
     //Prevents the game from testing the word if the game is over.
@@ -59,10 +68,18 @@ function Game() {
     }
   }
 
+  function restartGame() {
+    setWordMemory([{word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}, {word: '', id: crypto.randomUUID(), coloringData: ['', '', '', '', '']}]);
+    setCurrentTrys(0);
+    setIsGameOver(false);
+    setGameStatus('');
+    pickAnswer();
+  }
+
   return (<>
             <GuessTracker wordMemory={wordMemory} />
             <GuessInput currentWord={currentWord} setCurrentWord={setCurrentWord} tryCurrentWord={tryCurrentWord}  isGameOver={isGameOver}/>
-            {gameStatus === '' ? null : <Banner status={gameStatus} answer={answer} currentTrys={currentTrys}/>}
+            {gameStatus === '' ? null : <Banner restartGame={restartGame} status={gameStatus} answer={answer} currentTrys={currentTrys} />}
           </>);
 }
 
