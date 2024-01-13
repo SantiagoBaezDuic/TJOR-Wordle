@@ -7,7 +7,10 @@ function Banner({ currentTrys, status, answer, restartGame }) {
         {status === "happy" ? (
           <>
             <strong>Congratulations!</strong> Got it in{" "}
-            <strong>{currentTrys} guesses</strong>.
+            <strong>
+              {currentTrys} {currentTrys === 1 ? "guess" : "guesses"}
+            </strong>
+            .
           </>
         ) : (
           <>

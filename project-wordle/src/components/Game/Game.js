@@ -6,7 +6,7 @@ import Banner from "../Banner/Banner";
 import { NUM_OF_GUESSES_ALLOWED } from "../../constants";
 import { checkGuess } from "../../game-helpers";
 import { sample } from "../../utils";
-import { WORDS, EMPTY_MEMORY, LETTERS } from "../../data";
+import { WORDS_5, EMPTY_MEMORY, LETTERS } from "../../data";
 import Keyboard from "../Keyboard/Keyboard";
 
 function Game() {
@@ -18,24 +18,19 @@ function Game() {
   const [isGameOver, setIsGameOver] = React.useState(false);
   //State to display either a happy or sad banner.
   const [gameStatus, setGameStatus] = React.useState("");
-  //State for the current answer selected
-  const [answer, setAnswer] = React.useState("");
-  //State for coloring the used letters on the keyboard
+  //State for the current answer selected.
+  const [answer, setAnswer] = React.useState(sample(WORDS_5));
+  //State for coloring the used letters on the keyboard.
   const [usedLetters, setUsedLetters] = React.useState([...LETTERS]);
 
   function pickAnswer() {
-    setAnswer(sample(WORDS));
+    setAnswer(sample(WORDS_5));
   }
 
-  // Pick a random word on game start.
-  if (answer === "") {
-    pickAnswer();
-  }
-
-  function setLetterStatus(status, el) {
+  function setLetterStatus(status, obj) {
     let nextUsedLetters = [...usedLetters];
     const indexToModify = nextUsedLetters.findIndex(
-      (element) => element.letter === el.letter
+      (element) => element.letter === obj.letter
     );
     nextUsedLetters[indexToModify].status = status;
     setUsedLetters(nextUsedLetters);

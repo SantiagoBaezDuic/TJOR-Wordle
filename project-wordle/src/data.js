@@ -1,4 +1,7 @@
-export const WORDS = [
+import { range } from "./utils";
+import { WORD_LENGTH, NUM_OF_GUESSES_ALLOWED } from "./constants";
+
+export const WORDS_5 = [
   "AGENT",
   "WORLD",
   "ABOUT",
@@ -80,11 +83,12 @@ export const LETTERS = [
   { letter: "M", status: "" },
 ];
 
-export const EMPTY_MEMORY = [
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-  { word: "", id: crypto.randomUUID(), coloringData: ["", "", "", "", ""] },
-];
+export const EMPTY_MEMORY = range(0, NUM_OF_GUESSES_ALLOWED).map(() => {
+  return {
+    word: "",
+    id: crypto.randomUUID(),
+    coloringData: range(0, WORD_LENGTH).map(() => {
+      return "";
+    }),
+  };
+});

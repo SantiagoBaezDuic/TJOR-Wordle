@@ -1,4 +1,5 @@
 import React from "react";
+import { WORD_LENGTH } from "../../constants";
 
 function GuessInput({ tryCurrentWord, isGameOver }) {
   //State for input handling.
@@ -23,7 +24,7 @@ function GuessInput({ tryCurrentWord, isGameOver }) {
           disabled={isGameOver}
           title='A 5 letter word'
           required
-          pattern='[a-zA-Z]{5}'
+          pattern={`[a-zA-Z]{${WORD_LENGTH}}`}
           maxLength={5}
           id='guess-input'
           type='text'
