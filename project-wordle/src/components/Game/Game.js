@@ -37,6 +37,10 @@ function Game() {
   // To make debugging easier, we'll log the solution in the console.
   console.info({ answer });
 
+  function setWord(word) {
+    setCurrentWord(word);
+  }
+
   function tryCurrentWord() {
     //Prevents the game from testing the word if the game is over.
     if (isGameOver) {
@@ -117,7 +121,7 @@ function Game() {
       <GuessTracker wordMemory={wordMemory} />
       <GuessInput
         currentWord={currentWord}
-        setCurrentWord={setCurrentWord}
+        setWord={setWord}
         tryCurrentWord={tryCurrentWord}
         isGameOver={isGameOver}
       />
