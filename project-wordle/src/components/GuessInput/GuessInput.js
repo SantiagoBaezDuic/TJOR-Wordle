@@ -1,13 +1,20 @@
 import React from "react";
 
-function GuessInput({ currentWord, setWord, tryCurrentWord, isGameOver }) {
+function GuessInput({ tryCurrentWord, isGameOver }) {
+  //State for input handling.
+  const [currentWord, setCurrentWord] = React.useState("");
+
   return (
     <>
       <form
         className='guess-input-wrapper'
         onSubmit={(event) => {
+          //Prevents default behaviour
           event.preventDefault();
-          tryCurrentWord();
+          //Checks the current guess
+          tryCurrentWord(currentWord);
+          //Cleans the input.
+          setCurrentWord("");
         }}
       >
         <label htmlFor='guess-input'>Enter guess:</label>
@@ -16,13 +23,13 @@ function GuessInput({ currentWord, setWord, tryCurrentWord, isGameOver }) {
           disabled={isGameOver}
           title='A 5 letter word'
           required
-          pattern='.{5}'
+          pattern='[a-zA-Z]{5}'
           maxLength={5}
           id='guess-input'
           type='text'
           value={currentWord}
           onChange={(event) => {
-            setWord(event.target.value.toUpperCase());
+            setCurrentWord(event.target.value.toUpperCase());
           }}
         />
       </form>

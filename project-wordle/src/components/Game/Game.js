@@ -12,8 +12,6 @@ import Keyboard from "../Keyboard/Keyboard";
 function Game() {
   //Word memory for saving past attempts.
   const [wordMemory, setWordMemory] = React.useState(EMPTY_MEMORY);
-  //State for input handling.
-  const [currentWord, setCurrentWord] = React.useState("");
   //State to count the amount of attempts the user made.
   const [currentTrys, setCurrentTrys] = React.useState(0);
   //Boolean to define if the input is disabled or not.
@@ -34,42 +32,32 @@ function Game() {
     pickAnswer();
   }
 
+  function setLetterStatus(status, el) {
+    let nextUsedLetters = [...usedLetters];
+    const indexToModify = nextUsedLetters.findIndex(
+      (element) => element.letter === el.letter
+    );
+    nextUsedLetters[indexToModify].status = status;
+    setUsedLetters(nextUsedLetters);
+  }
+
   // To make debugging easier, we'll log the solution in the console.
   console.info({ answer });
 
-  function setWord(word) {
-    setCurrentWord(word);
-  }
-
-  function tryCurrentWord() {
+  function tryCurrentWord(word) {
     //Prevents the game from testing the word if the game is over.
     if (isGameOver) {
       return;
     }
 
     //Tests the word.
-    const results = checkGuess(currentWord, answer).map((el) => {
+    const results = checkGuess(word, answer).map((el) => {
       if (el.status === "incorrect") {
-        let nextUsedLetters = [...usedLetters];
-        const indexToModify = nextUsedLetters.findIndex(
-          (element) => element.letter === el.letter
-        );
-        nextUsedLetters[indexToModify].status = "incorrect";
-        setUsedLetters(nextUsedLetters);
+        setLetterStatus("incorrect", el);
       } else if (el.status === "misplaced") {
-        let nextUsedLetters = [...usedLetters];
-        const indexToModify = nextUsedLetters.findIndex(
-          (element) => element.letter === el.letter
-        );
-        nextUsedLetters[indexToModify].status = "misplaced";
-        setUsedLetters(nextUsedLetters);
+        setLetterStatus("misplaced", el);
       } else if (el.status === "correct") {
-        let nextUsedLetters = [...usedLetters];
-        const indexToModify = nextUsedLetters.findIndex(
-          (element) => element.letter === el.letter
-        );
-        nextUsedLetters[indexToModify].status = "correct";
-        setUsedLetters(nextUsedLetters);
+        setLetterStatus("correct", el);
       }
 
       return el.status;
@@ -79,16 +67,13 @@ function Game() {
     let nextWordMemory = [...wordMemory];
     nextWordMemory[currentTrys] = {
       ...nextWordMemory[currentTrys],
-      word: currentWord,
+      word: word,
       coloringData: results,
     };
     setWordMemory(nextWordMemory);
 
     //Adds a new try.
     setCurrentTrys(currentTrys + 1);
-
-    //Cleans the input.
-    setCurrentWord("");
 
     //If the word is correct, ends the game ands displays a happy banner.
     if (results.every((element) => element === "correct")) {
@@ -119,12 +104,7 @@ function Game() {
   return (
     <>
       <GuessTracker wordMemory={wordMemory} />
-      <GuessInput
-        currentWord={currentWord}
-        setWord={setWord}
-        tryCurrentWord={tryCurrentWord}
-        isGameOver={isGameOver}
-      />
+      <GuessInput tryCurrentWord={tryCurrentWord} isGameOver={isGameOver} />
       <Keyboard usedLetters={usedLetters} />
       {gameStatus === "" ? null : (
         <Banner
